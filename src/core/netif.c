@@ -1,16 +1,16 @@
 /**
  * @file
  * lwIP network interface abstraction
- * 
+ *
  * @defgroup netif Network interface (NETIF)
  * @ingroup callbackstyle_api
- * 
+ *
  * @defgroup netif_ip4 IPv4 address handling
  * @ingroup netif
- * 
+ *
  * @defgroup netif_ip6 IPv6 address handling
  * @ingroup netif
- * 
+ *
  * @defgroup netif_cd Client data handling
  * Store data (void*) on a netif for application usage.
  * @see @ref LWIP_NUM_NETIF_CLIENT_DATA
@@ -196,7 +196,7 @@ netif_init(void)
  * ethernet_input() or ip_input() depending on netif flags.
  * Don't call directly, pass to netif_add() and call
  * netif->input().
- * Only works if the netif driver correctly sets 
+ * Only works if the netif driver correctly sets
  * NETIF_FLAG_ETHARP and/or NETIF_FLAG_ETHERNET flag!
  */
 err_t
@@ -229,12 +229,12 @@ netif_input(struct pbuf *p, struct netif *inp)
  * to decide whether to forward to ethernet_input() or ip_input().
  * In other words, the functions only work when the netif
  * driver is implemented correctly!\n
- * Most members of struct netif should be be initialized by the 
+ * Most members of struct netif should be be initialized by the
  * netif init function = netif driver (init parameter of this function).\n
  * IPv6: Don't forget to call netif_create_ip6_linklocal_address() after
  * setting the MAC address in struct netif.hwaddr
  * (IPv6 requires a link-local address).
- * 
+ *
  * @return netif, or NULL if failed.
  */
 struct netif *
@@ -305,6 +305,10 @@ netif_add(struct netif *netif,
 #if ENABLE_LOOPBACK && LWIP_LOOPBACK_MAX_PBUFS
   netif->loop_cnt_current = 0;
 #endif /* ENABLE_LOOPBACK && LWIP_LOOPBACK_MAX_PBUFS */
+
+#if IP_NAPT
+  netif->napt = 0;
+#endif /* IP_NAPT */
 
 #if LWIP_IPV4
   netif_set_addr(netif, ipaddr, netmask, gw);

@@ -57,6 +57,7 @@
 #include "lwip/nd6.h"
 #include "lwip/mld6.h"
 #include "lwip/api.h"
+#include "lwip/lwip_napt.h"
 
 #include "netif/ppp/ppp_opts.h"
 #include "netif/ppp/ppp_impl.h"
@@ -382,4 +383,8 @@ lwip_init(void)
 #if LWIP_TIMERS
   sys_timeouts_init();
 #endif /* LWIP_TIMERS */
+
+#if IP_NAPT && !IP_NAPT_DYNAMIC
+  ip_napt_init(IP_NAPT_MAX, IP_PORTMAP_MAX);
+#endif /* IP_NAPT */
 }
