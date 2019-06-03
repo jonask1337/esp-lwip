@@ -1365,6 +1365,16 @@ ip4_input(struct pbuf *p, struct netif *inp)
 #if IP_FORWARD
     /* non-broadcast packet? */
     if (!ip4_addr_isbroadcast(ip4_current_dest_addr(), inp)) {
+      /* the header modification in ip4_forward may not work on PBUF_REF */
+      /* so make a copy of packet */
+      if (p->type == PBUF_REF) {
+          struct pbuf* q = pbuf_alloc(PBUF_IP, p->len + 16, PBUF_RAM);
+          if (q != NULL) {
+              pbuf_copy(q, p);
+              pbuf_free(p);
+              p = q;
+          }
+      }
       /* try to forward IP packet on (other) interfaces */
       ip4_forward(p, iphdr, inp);
     } else
