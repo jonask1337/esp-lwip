@@ -856,6 +856,59 @@ ip_napt_recv(struct pbuf *p, struct ip_hdr *iphdr)
 #endif // LWIP_UDP
 }
 
+#if IP_NAPT_LIMIT_MSS
+/**
+ * Limits MSS of forwarded by modifying the TCP header if needed
+ *
+ * @param tcpdr TCP header of packet to forward
+ */
+void
+ip_napt_limit_mss(struct tcp_hdr *tcphdr)
+{
+  u8_t *optptr;
+  u8_t *optend;
+  u16_t mss;
+
+  if ((TCPH_FLAGS(tcphdr) & (TCP_SYN)) == 0)
+    return;
+  optptr = (u8_t *)tcphdr + TCP_HLEN;
+  optend = optptr + (TCPH_HDRLEN(tcphdr) * 4 - TCP_HLEN);
+  while (optptr < optend) {
+    switch (*optptr) {
+      case LWIP_TCP_OPT_EOL:
+        return;                 /* no more options after EOL */
+      case LWIP_TCP_OPT_NOP:
+        optptr++;               /* NOP is single byte */
+        break;
+      case LWIP_TCP_OPT_MSS:
+        if (optptr[1] == 4) {
+          mss = 256*optptr[2] + optptr[3];
+          if (mss > TCP_MSS) {
+            u8_t  *chksumptr = (u8_t *)tcphdr + TCP_HLEN - 4;
+            u16_t chksum = 256*chksumptr[0] + chksumptr[1];
+            optptr[2] = TCP_MSS >> 8;
+            optptr[3] = TCP_MSS & 0xFF;
+            LWIP_DEBUGF(NAPT_DEBUG, ("NAPT, MSS of %"U16_F", rewritten to %"U16_F"\n",
+                        mss, TCP_MSS));
+            chksum ^= 0xFFFF;
+            if (((unsigned) optptr & 1) == 0)
+              chksum += TCP_MSS - mss;
+            else
+              chksum += 256*(TCP_MSS & 0xFF) + (TCP_MSS >> 8) - (256*(mss & 0xFF) + (mss >> 8));
+            chksum ^= 0xFFFF;
+            chksumptr[0] = chksum >> 8;
+            chksumptr[1] = chksum & 0xFF;
+          }
+        }
+        /* no break */
+      default:
+        /* options other than EOL and NOP have length in second byte */
+        optptr += optptr[1];
+    }
+  }
+}
+#endif
+
 /**
  * NAPT for a forwarded packet. It checks weather we need NAPT and modify
  * the packet source address and port if needed.
@@ -892,6 +945,9 @@ ip_napt_forward(struct pbuf *p, struct ip_hdr *iphdr, struct netif *inp, struct 
   if (IPH_PROTO(iphdr) == IP_PROTO_TCP) {
     struct tcp_hdr *tcphdr = (struct tcp_hdr *)((u8_t *)p->payload + IPH_HL(iphdr) * 4);
     u16_t mport;
+#if IP_NAPT_LIMIT_MSS
+    ip_napt_limit_mss(tcphdr);
+#endif
 
     struct portmap_table *m = ip_portmap_find_dest(IP_PROTO_TCP, tcphdr->src, iphdr->src.addr);
     if (m) {
