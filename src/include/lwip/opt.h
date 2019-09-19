@@ -686,6 +686,14 @@
 #endif
 
 /**
+ * IP_NAPT_LIMIT_MSS==1: Inspect TCP handshake packets and rewrite if needed
+ * to limit MSS to that value TCP_MSS
+ */
+#ifndef IP_NAPT_LIMIT_MSS
+#define IP_NAPT_LIMIT_MSS               1
+#endif
+
+/**
  * IP_OPTIONS_ALLOWED: Defines the behavior for IP options.
  *      IP_OPTIONS_ALLOWED==0: All packets with IP options are dropped.
  *      IP_OPTIONS_ALLOWED==1: IP options are allowed (but not parsed).
