@@ -28,4 +28,4 @@ In the code of your firmware enable NAPT for the softAP interface by calling the
 Additionally, you may want to change the DNS server ip address that is offered by the DHCP server of the softAP. By default, the DHCP server will use the ip address of the softAP as DNS server ip address.
 To set a different ip address use the *dhcps_dns_setserver* function defined in the `esp-idf/components/lwip/include/apps/dhcpserver/dhcpserver.h` header file.
 
-Example esp-idf project where NAT is enabled and a custom DNS server ip is set: https://github.com/jonask1337/esp-idf-nat-example
+**Example esp-idf project where NAT is enabled and a custom DNS server ip is set**: https://github.com/jonask1337/esp-idf-nat-example
