@@ -8,6 +8,8 @@ Tested with version v3.3 of the ESP-IDF: https://github.com/espressif/esp-idf/tr
 
 It is based on the NAT implementation from this ESP8266 lwIP library: https://github.com/martin-ger/esp-open-lwip
 
+**Update:** There is now a newer lwIP 2.1.2 library with NAT that can be found here: https://github.com/martin-ger/esp-lwip
+
 ## Get Started
 To use it just replace the lwIP library from the lwIP component of the ESP-IDF with this one.
 This can be done by following these steps:
