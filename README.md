@@ -1,5 +1,7 @@
 # ESP-IDF lwIP library with NAT 
 
+\*Obsolete - NAPT ist now included in Espressif's esp-lwip\*
+
 A version of the ESP-IDF lwIP library with NAT support.
 
 The NAPT functionality can be enabled with the IP_NAPT and IP_FORWARD options in `esp-lwip/src/include/lwip/opt.h`.
